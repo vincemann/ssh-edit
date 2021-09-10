@@ -14,31 +14,29 @@ port = None
 ssh_remote_file_path = None
 file_to_edit = None
 key_file = None
-
-first_arg = sys.argv[1]
-
 index = 1
+
+
+def load_arg():
+    global index
+    v = sys.argv[index]
+    index += 1
+    return v
+
+
+first_arg = load_arg()
+
 if first_arg == "-p":
-    index += 1
-    password = sys.argv[index]
-    index += 1
+    password = load_arg()
 elif first_arg == "-k":
-    index += 1
-    key_file = sys.argv[index]
-    index += 1
+    key_file = load_arg()
 
+user = load_arg()
+ip = load_arg()
+port = load_arg()
+port = int(port)
 
-user = sys.argv[index]
-index += 1
-
-ip = sys.argv[index]
-index += 1
-
-port = int(sys.argv[index])
-index += 1
-
-file_to_edit = sys.argv[index]
-index += 1
+file_to_edit = load_arg()
 
 try:
     gui_editor = os.environ['GUI_EDITOR']
@@ -46,6 +44,9 @@ except KeyError:
     gui_editor = "gedit"
 
 temp_file = "/tmp/ssh-edit"
+
+
+
 
 
 def create_session():
