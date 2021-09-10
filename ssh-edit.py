@@ -1,12 +1,44 @@
 from pwn import *
 import sys
 import subprocess
-from pynput.keyboard import Key, Listener, KeyCode
+from pynput.keyboard import Key, Listener
 
-# usage ssh-edit user@ip:/path/to/file/to/edit
+# usage [-p password | -k keyfile] ssh-edit user ip port /path/to/file/to/edit
 # updates remote file on ctrl+s
+# password and key auth cannot be used together
 
-ssh_remote_file_path = sys.argv[1]
+password = None
+user = None
+ip = None
+port = None
+ssh_remote_file_path = None
+file_to_edit = None
+key_file = None
+
+first_arg = sys.argv[1]
+
+index = 1
+if first_arg == "-p":
+    index += 1
+    password = sys.argv[index]
+    index += 1
+elif first_arg == "-k":
+    index += 1
+    key_file = sys.argv[index]
+    index += 1
+
+
+user = sys.argv[index]
+index += 1
+
+ip = sys.argv[index]
+index += 1
+
+port = int(sys.argv[index])
+index += 1
+
+file_to_edit = sys.argv[index]
+index += 1
 
 try:
     gui_editor = os.environ['GUI_EDITOR']
@@ -16,10 +48,27 @@ except KeyError:
 temp_file = "/tmp/ssh-edit"
 
 
+def create_session():
+    if password:
+        s = ssh(user, ip, port, password)
+    else:
+        s = ssh(user, ip, port, keyfile=key_file)
+    return s
+
+
+session = create_session()
+
+
 def update_remote_file():
-    io = process(["scp", temp_file, ssh_remote_file_path])
-    io.recvall()
-    log.info("edited file updated on remote machine")
+    log.info("saving remote file")
+    session.upload(temp_file, file_to_edit)
+    log.info("saved remote file")
+
+
+def download_remote_file():
+    log.info("downloading remote file")
+    session.download(file_to_edit, temp_file)
+    log.info("downloaded file")
 
 
 ctrl_down = False
@@ -41,13 +90,7 @@ def on_release(key):
         ctrl_down = False
 
 
-log.info(temp_file)
-
-
-io = process(["scp", ssh_remote_file_path, temp_file])
-io.recvall()
-
-log.info("downloaded file")
+download_remote_file()
 
 subprocess.call([gui_editor, temp_file])
 
@@ -68,7 +111,6 @@ with Listener(
 #        break
 #    io.close()
 
-log.info("file edited")
 
 
 
