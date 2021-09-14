@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from pwn import *
 import sys
 import subprocess
@@ -44,9 +45,6 @@ except KeyError:
     gui_editor = "gedit"
 
 temp_file = "/tmp/ssh-edit"
-
-
-
 
 
 def create_session():
