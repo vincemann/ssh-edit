@@ -3,10 +3,12 @@ from pwn import *
 import sys
 import subprocess
 from pynput.keyboard import Key, Listener
+import uuid
 
-# usage [-p password | -k keyfile] ssh-edit user ip port /path/to/file/to/edit
+# usage: ssh-edit [-p password | -k keyfile] user ip port /path/to/file/to/edit
 # updates remote file on ctrl+s
 # password and key auth cannot be used together
+# if used with ez-bash run 'backx ssh-edit ...'
 
 password = None
 user = None
@@ -44,14 +46,14 @@ try:
 except KeyError:
     gui_editor = "gedit"
 
-temp_file = "/tmp/ssh-edit"
+temp_file = "/tmp/ssh-edit------"+file_to_edit.replace("/","\\")+"--------"+str(uuid.uuid4())
 
 
 def create_session():
     if password:
-        s = ssh(user, ip, port, password)
+        s = ssh(user, ip, port, password,cache=False)
     else:
-        s = ssh(user, ip, port, keyfile=key_file)
+        s = ssh(user, ip, port, keyfile=key_file,cache=False)
     return s
 
 
@@ -92,24 +94,24 @@ def on_release(key):
 download_remote_file()
 
 subprocess.call([gui_editor, temp_file])
+log.info("after process started")
 
 
 # Collect events until released
 with Listener(
         on_press=on_press,
         on_release=on_release) as listener:
-    listener.join()
-
-#time.sleep(1)
-#while True:
-#    time.sleep(0.3)
-#    io = process("ps aux | grep " + gui_editor + " | grep -v grep", shell=True)
-#    proc_running = io.recvall()
-#    if proc_running == b"":
-#        io.close()
-#        break
-#    io.close()
-
-
-
-
+    # listener.join()
+    time.sleep(1)
+    while True:
+       time.sleep(0.3)
+       io = process("ps aux | grep " + gui_editor + " | grep -v grep", shell=True)
+       proc_running = io.recvall()
+       log.info(f"proc_running {proc_running}")
+       if proc_running == b"":
+           io.close()
+           log.info("editor closed")
+           process(["rm",temp_file])
+           exit(0)
+           break
+       io.close()
