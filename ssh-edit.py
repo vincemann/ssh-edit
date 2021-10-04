@@ -110,6 +110,7 @@ with Listener(
        log.info(f"proc_running {proc_running}")
        if proc_running == b"":
            io.close()
+           s.close()
            log.info("editor closed")
            process(["rm",temp_file])
            exit(0)
