@@ -22,7 +22,14 @@ index = 1
 
 def load_arg():
     global index
-    v = sys.argv[index]
+    try:
+        v = sys.argv[index]
+    except Exception as e:
+        print("usage: ssh-edit [-p password | -k keyfile] user ip port /path/to/file/to/edit")
+        exit(1)
+    if index == 1 and v == "--help":
+        print("usage: ssh-edit [-p password | -k keyfile] user ip port /path/to/file/to/edit")
+        exit(0)
     index += 1
     return v
 
