@@ -2,6 +2,8 @@
 sudo apt install -y python3-pip
 sudo apt install -y python3-tk
 sudo apt install -y libffi-dev
+sudo pip install --upgrade pip
+export CRYPTOGRAPHY_DONT_BUILD_RUST=1
 # sudo python3 -m pip install -r ./requirements.txt
 # sudo pip3 install -r ./requirements.txt
 # https://stackoverflow.com/questions/49324802/pip-always-fails-ssl-verification
