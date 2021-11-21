@@ -4,6 +4,7 @@ import sys
 import subprocess
 from pynput.keyboard import Key, Listener
 import uuid
+import os
 
 # usage: ssh-edit [-p password | -k keyfile] user ip port /path/to/file/to/edit
 # updates remote file on ctrl+s
@@ -53,8 +54,9 @@ try:
 except KeyError:
     gui_editor = "gedit"
 
-temp_file = "/tmp/ssh-edit------"+file_to_edit.replace("/","\\")+"--------"+str(uuid.uuid4())
-
+temp_file = "/tmp/ssh-edit-"+file_to_edit.replace("/","\\")
+if os.path.exists(temp_file):
+  os.remove(temp_file)
 
 def create_session():
     if password:
