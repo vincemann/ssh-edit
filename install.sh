@@ -1,9 +1,9 @@
 #!/bin/bash
-sudo apt install -y python3-pip
+# for pwntools which provides easy ssh api, rustc is needed for cryptography, which is transitive dep of pwntools
+sudo apt install -y python3 python3-pip python3-dev git libssl-dev libffi-dev build-essential rustc
 sudo apt install -y python3-tk
 sudo apt install -y libffi-dev
-sudo pip install --upgrade pip
-export CRYPTOGRAPHY_DONT_BUILD_RUST=1
+sudo python3 -m pip install --upgrade pip
 # sudo python3 -m pip install -r ./requirements.txt
 # sudo pip3 install -r ./requirements.txt
 # https://stackoverflow.com/questions/49324802/pip-always-fails-ssl-verification
